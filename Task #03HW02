@@ -1,0 +1,69 @@
+#Sample Input: https://movies.yahoo.com.tw/movie_thisweek.html（資料來源：Yahoo 奇摩電影 ）
+#Sample Output: 找出 Yahoo 奇摩電影中「本週新片」、「上映中」與「即將上映」前三個分頁中的電影，包含「中、英文名稱」、「上映日期」和「期待度」資訊。
+
+import threading
+import requests
+from bs4 import BeautifulSoup
+from queue import Queue
+
+def fetch_movie_data(url, movie_queue):
+    # 發送 HTTP GET 請求，獲取網頁內容
+    resp = requests.get(url)
+    # 使用 BeautifulSoup 解析網頁內容
+    soup = BeautifulSoup(resp.text, 'html.parser')
+    # 建立一個空的電影資料列表
+    movies = []
+    # 從網頁中選擇所有電影資訊元素
+    for movie in soup.select('.release_info'):
+        # 提取電影中文名稱
+        title = movie.select_one('.release_movie_name a').text.strip()
+        # 提取電影英文名稱
+        eng_title = movie.select_one('.en').text.strip()
+        # 提取電影上映日期
+        date = movie.select_one('.release_movie_time').text.strip().replace('\n', '').replace(' ', '')[5:]
+        # 提取電影期待度
+        expectation = movie.select_one('.leveltext').text.strip().replace('\n', '').replace(' ', '')
+        # 將電影資訊加入 movies 列表中
+        movies.append({
+            '中文名稱': title,
+            '英文名稱': eng_title,
+            '上映日期': date,
+            '期待度': expectation
+        })
+    # 將電影資料放入 Queue
+    movie_queue.put(movies)
+
+# 設定三個要爬取的網頁 URL
+urls = [
+    'https://movies.yahoo.com.tw/movie_thisweek.html',
+    'https://movies.yahoo.com.tw/movie_intheaters.html',
+    'https://movies.yahoo.com.tw/movie_comingsoon.html'
+]
+
+# 建立一個 Queue 來儲存網頁資料
+movie_queue = Queue()
+
+# 建立一個執行緒列表
+threads = []
+
+# 依序處理每個網頁
+for url in urls:
+    # 建立一個執行緒，將處理函式與網址傳入
+    t = threading.Thread(target=fetch_movie_data, args=(url, movie_queue))
+    # 啟動執行緒
+    t.start()
+    # 將執行緒加入列表
+    threads.append(t)
+
+# 等待所有執行緒結束
+for t in threads:
+    t.join()
+
+# 從 Queue 中取出所有資料
+all_movies = []
+while not movie_queue.empty():
+    all_movies.extend(movie_queue.get())
+
+# 印出所有資料
+for movie in all_movies:
+    print(movie)
