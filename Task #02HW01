@@ -1,0 +1,32 @@
+#練習：請從給定的 DataFrame 分別篩選出符合條件的資料：
+# - 1. filtered by first column > 20?
+# - 2. filtered by first column + second column > 50
+# - 3. filtered by first column < 30 or second column > 30
+# - 4. filtered by total sum of row > 100
+
+
+import pandas as pd
+import numpy as np
+df = pd.DataFrame(np.random.randint(10, 40, 60).reshape(-1, 4))
+#random.randint(low, high=None, size=None, dtype=int)
+#low最小要大於,high最大要小於，即所有數值介於high&low，size產生多少。
+#reshape(c,-1)函数，表示将矩陣重组，以c行d列的形式表示
+#-1的作用:自動計算d
+
+# - 1. filtered by first column > 20?
+column_0 = df.iloc[:,0]#選取第一欄
+selected = column_0[column_0>20]#選取大於20的元素
+print(selected)
+
+# - 2. filtered by first column + second column > 50
+filtered_df = df[df.iloc[:,0] + df.iloc[:,1] > 50]#篩選符合條件的子集
+print(filtered_df.iloc[:, :2])#只印出第一欄和第二欄
+
+# - 3. filtered by first column < 30 or second column > 30
+filtered_df = df[(df.iloc[:,0] <30) | (df.iloc[:,1] > 50)]#篩選符合條件的子集
+print(filtered_df.iloc[:, :2])#只印出第一欄和第二欄
+
+# - 4. filtered by total sum of row > 100
+row_sum = df.sum(axis=1)#計算每一列的總和，沿著行(axis=0)或列(axis=1)求和
+filtered_df = df[row_sum > 100]#篩選符合條件的子集
+print(filtered_df)# 顯示結果
