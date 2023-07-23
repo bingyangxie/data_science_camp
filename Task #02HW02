@@ -1,0 +1,24 @@
+#練習：請利用 Pandas 計算給定的資料中不同 weekday 的 visitor 總和為何？
+#Sample Output: { 'Sun': 376, 'Mon': 782 }
+
+import pandas as pd
+import numpy as np
+
+d = [
+    {'city': 'Austin', 'visitor': 139, 'weekday': 'Sun'},
+    {'city': 'Dallas', 'visitor': 237, 'weekday': 'Sun'},
+    {'city': 'Austin', 'visitor': 326, 'weekday': 'Mon'},
+    {'city': 'Dallas', 'visitor': 456, 'weekday': 'Mon'}
+]
+df = pd.DataFrame(d)
+grouped = df.groupby('weekday')#groupby方法將DataFrame按照"weekday"列的值進行分組
+result = grouped.sum({'visitor'})#計算各group和
+print(result.to_dict()['visitor'])#將DataFrame轉換為dictionary格式，DataFrame的行和列是字典的鍵和值
+=============================================================================================================================================================
+grouped = df.groupby('weekday')
+sun_group = grouped.get_group('Sun')#只選擇Sun，用get_group
+result =  sun_group['visitor'].sum()#result = 376
+=============================================================================================================================================================
+grouped = df.groupby('weekday')
+result = grouped.aggregate({'visitor':'sum'})#aggregate方法可以對群組化的數據進行自定義的計算，例如計算平均值、標準差、最大值、最小值等統計量，或者進行自定義的函數運算。
+print(result.to_dict()['visitor'])#{'Mon': 782, 'Sun': 376}
