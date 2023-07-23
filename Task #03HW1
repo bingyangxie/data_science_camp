@@ -1,0 +1,38 @@
+#Sample Input: https://movies.yahoo.com.tw/movie_thisweek.html（資料來源：Yahoo 奇摩電影 ）
+#Sample Output: 找出該頁面上的「中、英文名稱」、「上映日期」和「期待度」
+
+import requests
+from bs4 import BeautifulSoup
+
+# 輸入網頁網址
+url = 'https://movies.yahoo.com.tw/movie_thisweek.html'
+# 以 requests.get() 函式送出 HTTP GET 請求，取得網頁回應
+resp = requests.get(url)
+
+# 將取得的網頁原始碼以 'html.parser' 解析器解析
+soup = BeautifulSoup(resp.text, 'html5lib')
+
+# 用一個空串列 movies 儲存所有電影的資訊
+movies = []
+
+# 以 '.release_info' 選擇器選出所有放映資訊的區塊
+for movie in soup.select('.release_info'):
+    # 從電影區塊中，選出中文名稱
+    title = movie.select_one('.release_movie_name a').text.strip()
+    # 從電影區塊中，選出英文名稱
+    eng_title = movie.select_one('.en').text.strip()
+    # 從電影區塊中，選出上映日期並丟棄開頭的「上映日期：」字樣，去除空白、換行字元
+    date = movie.select_one('.release_movie_time').text.strip().replace('\n', '').replace(' ', '')[5:]#從第五字開始擷取
+    # 從電影區塊中，選出期待度，去除空白、換行字元
+    expectation = movie.select_one('.leveltext').text.strip().replace('\n', '').replace(' ', '')
+    # 將這部電影的資訊加入到 movies 串列
+    movies.append({
+        '中文名稱': title,
+        '英文名稱': eng_title,
+        '上映日期': date,
+        '期待度': expectation
+    })
+
+# 將所有電影的資訊以字典形式顯示出來
+for movie in movies:
+    print(movie)
