@@ -1,0 +1,57 @@
+#Sample Input: https://movies.yahoo.com.tw/movie_thisweek.html（資料來源：Yahoo 奇摩電影 ）
+#Sample Output: 將電影資訊整理成一個 DataFrame 並且將資料存到到 SQLite 資料庫中
+
+import requests
+from bs4 import BeautifulSoup
+import pandas as pd
+import sqlite3
+
+def get_movie_data(url):
+    # 使用 requests 模組中的 get 方法取得網頁回應
+    resp = requests.get(url)
+    # 將回應的內容解析為 BeautifulSoup 物件
+    soup = BeautifulSoup(resp.text, 'html.parser')
+
+    # 建立一個空的電影資料列表
+    movies = []
+    # 使用 select 方法選取網頁中的 .release_info 標籤
+    for movie in soup.select('.release_info'):
+        # 使用 select_one 方法選取 .release_movie_name a 標籤，取得電影中文名稱
+        title = movie.select_one('.release_movie_name a').text.strip()
+        # 使用 select_one 方法選取 .en 標籤，取得電影英文名稱
+        eng_title = movie.select_one('.en').text.strip()
+        # 使用 select_one 方法選取 .release_movie_time 標籤，取得電影上映日期
+        date = movie.select_one('.release_movie_time').text.strip().replace('\n', '').replace(' ', '')[5:]
+        # 使用 select_one 方法選取 .leveltext 標籤，取得電影期待度
+        expectation = movie.select_one('.leveltext').text.strip().replace('\n', '').replace(' ', '')
+        # 將電影資訊加入 movies 列表中
+        movies.append({
+            '中文名稱': title,
+            '英文名稱': eng_title,
+            '上映日期': date,
+            '期待度': expectation
+        })
+
+    return movies
+
+# 設定三個要爬取的網頁 URL
+url1 = 'https://movies.yahoo.com.tw/movie_thisweek.html'
+url2 = 'https://movies.yahoo.com.tw/movie_intheaters.html'
+url3 = 'https://movies.yahoo.com.tw/movie_comingsoon.html'
+
+# 使用 get_movie_data 函式獲取各網頁的電影資料
+movies1 = get_movie_data(url1)
+movies2 = get_movie_data(url2)
+movies3 = get_movie_data(url3)
+
+# 將各網頁的電影資料合併成一個 DataFrame
+df= pd.DataFrame(movies1 + movies2 + movies3)
+
+# 連接至 SQLite 資料庫檔案 'movies_all.db'
+conn = sqlite3.connect('movies_all.db')
+
+# 將 DataFrame 寫入 SQLite 資料庫的名為 'movies' 的表格中，如果該表格已存在則替換
+df.to_sql('movies', conn, if_exists='replace', index=False)
+
+# 關閉資料庫連接
+conn.close()
