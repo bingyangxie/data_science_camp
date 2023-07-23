@@ -1,0 +1,17 @@
+#Sample Input: https://data.nhi.gov.tw/resource/Nhi_Fst/Fstdata.csv
+#Sample Output: 剩餘快篩數量前五高的縣市
+
+from google.colab import drive
+drive.mount('/content/drive') #連接雲端drive
+import pandas as pd
+data = pd.read_csv('/content/drive/MyDrive/Fstdata.csv')
+data_pd = pd.DataFrame(data)
+county = data_pd["醫事機構地址"].str.slice(0,3)#根據地址用str.slice()從起始位置擷取子字串，並且可以指定起始位置和結束位置
+county_data = pd.DataFrame({"縣市": county})#產生新的欄位列表
+
+number_data = data_pd["快篩試劑截至目前結餘存貨數量"]#擷取快篩剩餘數量欄位
+data_concat = pd.concat([number_data, county_data], axis=1)#合併
+grouped = data_concat.groupby('縣市')#依縣市分組
+result = grouped.sum({'快篩試劑截至目前結餘存貨數量'})#計算各縣市剩餘數量
+top5 = result.sort_values(by='快篩試劑截至目前結餘存貨數量',ascending=False)#依據快篩數量進行降序排序
+top5.head()#head()用來印出前幾筆資料，預設為前5筆
