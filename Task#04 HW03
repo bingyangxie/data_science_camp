@@ -1,0 +1,43 @@
+#練習：How to check if a dataframe has any missing values？Check if df has any missing values.
+#Count the number of missing values in each column and find the maximum number of missing values.
+#How to replace missing values of `multiple numeric` columns with the mean?
+#Calculate the average price of different manufacturers.
+#How to replace missing values of `price` columns with the mean depending on its manufacturers?
+
+#Count the number of missing values in each column and find the maximum number of missing values.
+import pandas as pd
+url = 'https://raw.githubusercontent.com/selva86/datasets/master/Cars93_miss.csv'
+df = pd.read_csv(url)
+
+missing_values_count = df.isna().sum()#isna方法將DataFrame中的每個元素轉換為布爾值，標記缺失值為True。然後，使用sum方法對每列的True值進行求和，從而計算每個列中缺失值的數量。
+maximum_missing_values = missing_values_count.max()#missing_values_count是一個Series對象，其中索引是DataFrame的列名，值是對應列中的缺失值數量。使用max方法找到missing_values_count中的最大值，即最大的缺失值數量。
+
+print("Number of missing values in each column:")
+print(missing_values_count)
+print("Maximum number of missing values:", maximum_missing_values)
+
+#How to replace missing values of `multiple numeric` columns with the mean?
+import numpy as np
+replace_missing_values = df
+numeric_columns = replace_missing_values.select_dtypes(include=np.number).columns  # select_dtypes(include=np.number)將選擇數值型的列，並返回相應的列名。這將忽略非數值型列。
+replace_missing_values[numeric_columns] = replace_missing_values[numeric_columns].fillna(df[numeric_columns].mean())#使用fillna方法將選擇的數值型列中的缺失值替換為對應列的平均值。df[numeric_columns].mean()返回每個數值型列的平均值。
+replace_missing_values#忽略非數值型列，只將數值型列中的缺失值替換為平均值。
+
+#Calculate the average price of different manufacturers.
+manufacturer_price = df
+average_price = manufacturer_price.groupby('Manufacturer')['Price'].mean()#使用groupby方法按照manufacturer列進行分組，然後選擇price列並應用mean方法計算平均值。
+average_price
+
+#How to replace missing values of `price` columns with the mean depending on its manufacturers?
+replace_missing_prices = df
+replace_missing_prices['Price'] = replace_missing_prices.groupby('Manufacturer')['Price'].transform(lambda x: x.fillna(x.mean()))
+replace_missing_prices
+
+
+#transform方法遍歷每個分組的price列。
+#lambda函數 lambda x: x.fillna(x.mean()) 對每個分組的price列應用，其中x是分組的price列。
+#在lambda函數內部，fillna(x.mean()) 將分組的缺失值替換為該分組的平均值。x.mean()計算了該分組的平均值，fillna()方法將該分組中的缺失值替換為平均值。
+#transform方法返回修改後的price列，缺失值已經被替換為各自分組的平均值。
+
+
+
