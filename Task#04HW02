@@ -1,0 +1,41 @@
+#Drop missing observations
+#Drop rows where all cells in that row is NA
+#Create a new column full of missing values
+#Fill in missing data with zeros
+#Fill in missing in preTestScore with the mean value of preTestScore
+#Fill in missing in postTestScore with each sex’s mean value of postTestScore
+#Select some rows but ignore the missing data points
+
+import numpy as np
+import pandas as pd
+raw_data = {'first_name': ['Jason', np.nan, 'Tina', 'Jake', 'Amy'], 
+        'last_name': ['Miller', np.nan, 'Ali', 'Milner', 'Cooze'], 
+        'age': [42, np.nan, 36, 24, 73], 
+        'sex': ['m', np.nan, 'f', 'm', 'f'], 
+        'preTestScore': [4, np.nan, np.nan, 2, 3],
+        'postTestScore': [25, np.nan, np.nan, 62, 70]}
+df = pd.DataFrame(raw_data, columns = ['first_name', 'last_name', 'age', 'sex', 'preTestScore', 'postTestScore'])
+
+data_1=df.dropna()# 刪除所有含有缺失值的行
+#Drop missing observations
+
+data_2=df.dropna(thresh=1)#刪除含有過多Missing Value的列
+#Drop rows where all cells in that row is NA
+
+df['new_column'] = np.nan#增加一个'new_column'的新列，所有值設為NaN（Not a Number）
+#Create a new column full of missing values
+
+data_3=df.fillna(0)#所有NaN替換成0
+#Fill in missing data with zeros
+
+mean_score = df['preTestScore'].mean()#計算preTestScore平均值
+df['preTestScore'].fillna(mean_score, inplace=True)#列中的NaN值用preTestScore平均值填補
+#Fill in missing in preTestScore with the mean value of preTestScore
+
+dt_n=df
+dt_n['postTestScore'].fillna(dt_n[dt_n['sex']=='f']['postTestScore'].mean(), inplace=True)
+#用所有性別為'f'的行在'postTestScore'列上的平均補值
+#Fill in missing in postTestScore with each sex’s mean value of postTestScore
+
+selected_rows = df.dropna(subset=['preTestScore', 'postTestScore'])#刪除包含任何NaN值的行
+#Select some raws but ignore the missing data points
