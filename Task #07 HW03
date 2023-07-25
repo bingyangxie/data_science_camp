@@ -1,0 +1,28 @@
+
+import pandas as pd
+import statsmodels.api as sm
+
+source = 'https://raw.githubusercontent.com/cbrownley/foundations-for-analytics-with-python/master/statistics/winequality-both.csv'
+df = pd.read_csv(source)
+df
+# 從 DataFrame 中選取後 10 筆資料作為測試資料，其餘的資料作為訓練資料
+train = df.iloc[:-10]
+test = df.iloc[-10:]
+# 從測試資料中選取目標變數 (y)
+testy = test['quality']
+# 從訓練資料中選取特徵 (X) 和目標變數 (y)
+y = train['quality']
+X = sm.add_constant(train[train.columns.difference(['type','quality'])])
+
+# 從測試資料中選取特徵 (X)
+testX = sm.add_constant(test[test.columns.difference(['type','quality'])])
+
+# 使用訓練資料建立線性回歸模型並進行擬合
+model = sm.OLS(y, sm.add_constant(X)).fit() # A
+
+# 印出模型摘要
+print(model.summary()) # B
+# 使用建立的模型對測試資料進行預測，印出預測結果
+print(model.predict(testX))# C
+
+#對'quality'影響較大的特徵是volatile acidity、density、sulphates、alcohol、free sulfur dioxide、pH和residual sugar
