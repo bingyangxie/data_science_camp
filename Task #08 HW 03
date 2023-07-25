@@ -1,0 +1,92 @@
+#練習：請根據給定的資料集，利用 K-means 進行分群，請比較看看 k = 3、4、5 哪一種可能比較好？為什麼？
+
+import numpy as np
+import pandas as pd
+from sklearn.cluster import KMeans
+import matplotlib.pyplot as plt
+
+# 資料集 X
+X = np.array([[1, 2], [1, 4], [1, 0],
+              [4, 2], [4, 4], [4, 0]])
+
+# 嘗試不同的 k 值進行分群
+ks = [3, 4, 5]
+
+for k in ks:
+    # 建立 KMeans 模型
+    kmeans = KMeans(n_clusters=k, random_state=0)
+    # 進行聚類
+    clusters = kmeans.fit_predict(X)
+    # 將資料集 X 與其對應的群集標籤合併成 DataFrame
+    result_df = pd.DataFrame(np.column_stack((X, clusters)), columns=['Feature1', 'Feature2', 'Cluster'])
+
+    # 繪製不同群數的分群結果
+    plt.figure(figsize=(6, 4))
+    plt.scatter(X[:, 0], X[:, 1], c=clusters, cmap='viridis', edgecolor='k')
+    plt.scatter(kmeans.cluster_centers_[:, 0], kmeans.cluster_centers_[:, 1], c='red', marker='x')
+    plt.title(f'K-means Clustering with k={k}')
+    plt.xlabel('Feature 1')
+    plt.ylabel('Feature 2')
+    plt.show()
+
+    print(result_df)
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+
+# 資料
+X = np.array([[1, 2], [1, 4], [1, 0], [4, 2], [4, 4], [4, 0]])
+
+# 不同的 k 值範圍
+k_values = range(3, 6)
+
+# 儲存每個 k 值對應的 SSE
+sse = []
+
+# 計算每個 k 值對應的 SSE
+for k in k_values:
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X)
+    sse.append(kmeans.inertia_)  # kmeans.inertia_ 為 SSE 值
+
+# 繪製 SSE 與 k 值的折線圖
+plt.plot(k_values, sse, marker='o')
+plt.xlabel('Number of Clusters (k)')
+plt.ylabel('Sum of Squared Errors (SSE)')
+plt.title('Elbow Method for Optimal k')
+plt.xticks(k_values)
+plt.show()
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.metrics import silhouette_score
+
+# 資料
+X = np.array([[1, 2], [1, 4], [1, 0], [4, 2], [4, 4], [4, 0]])
+
+# 不同的 k 值範圍
+k_values = range(3, 6)
+
+# 儲存每個 k 值對應的 Silhouette Score
+silhouette_scores = []
+
+# 計算每個 k 值對應的 Silhouette Score
+for k in k_values:
+    kmeans = KMeans(n_clusters=k, random_state=42)
+    kmeans.fit(X)
+    labels = kmeans.labels_
+    silhouette_scores.append(silhouette_score(X, labels))
+
+# 繪製 Silhouette Score 與 k 值的折線圖
+plt.plot(k_values, silhouette_scores, marker='o')
+plt.xlabel('Number of Clusters (k)')
+plt.ylabel('Silhouette Score')
+plt.title('Silhouette Score for Optimal k')
+plt.xticks(k_values)
+plt.show()
+
+#結論因為Elbow 方法看不出拐點(Inflection point)，即SSE 的下降幅度由「快速轉為平緩」的點，所以採用Silhouette Coefficient法，S值最大者為k=3時發生，所以此時效果最好
