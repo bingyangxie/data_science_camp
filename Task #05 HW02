@@ -1,0 +1,8 @@
+#練習：請根據提供的資料，將原始欄位的資料切分成由 n 個類別所組成欄位。
+import numpy as np
+import pandas as pd
+df = pd.DataFrame(np.random.random(100)*100)
+n = input()
+df['category'] = pd.cut(df[0], bins=n, labels=False)
+#使用pd.cut()函數將df的第一個欄位（假設為索引0）切分成5個類別。bins=n指定將數值劃分為5個區間。
+df
