@@ -1,0 +1,34 @@
+#練習：請根據提供的 `iris` 資料，完成以下操作：
+#利用資料視覺化觀察 sepal 和 petal 四個欄位的關係。
+#利用相關係數觀察 sepal 和 petal 四個欄位的關係。
+
+import pandas as pd
+import numpy as np
+from sklearn.datasets import load_iris
+iris = load_iris()
+df = pd.DataFrame(data= np.c_[iris['data'], iris['target']],
+                     columns= iris['feature_names'] + ['target'])
+#iris['data']表示鳶尾花資料集中的特徵數據，包含了每朵鳶尾花的sepal length、sepal width、petal length和petal width的數值。
+#iris['target']表示鳶尾花資料集中的目標標籤，代表了每朵鳶尾花所屬的類別，包括setosa、versicolor和virginica。
+
+import matplotlib.pyplot as plt
+
+plt.scatter(df['petal length (cm)'], df['petal width (cm)'])
+plt.xlabel('Petal Length')
+plt.ylabel('Petal Width')
+plt.show()
+
+plt.scatter(df['sepal length (cm)'], df['sepal width (cm)'])
+#plt.scatter是Matplotlib中的一個函數，用於繪製散點圖
+#"sepal length (cm)"作為x軸的數值，"sepal width (cm)"作為y軸的數值
+plt.xlabel('Sepal Length')
+plt.ylabel('Sepal Width')
+plt.show()
+
+# 選取sepal和petal四個欄位
+columns = ['sepal length (cm)', 'sepal width (cm)', 'petal length (cm)', 'petal width (cm)']
+subset = df[columns]
+# 計算相關係數矩陣
+correlation_matrix = subset.corr()
+# 印出相關係數矩陣
+print(correlation_matrix)
