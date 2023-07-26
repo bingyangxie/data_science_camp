@@ -1,0 +1,45 @@
+#Frequent Patterns(Apriori)
+import pandas as pd
+dataset = [
+  ['Milk', 'Onion', 'Nutmeg', 'Kidney' 'Beans', 'Eggs', 'Yogurt'],
+  ['Dill', 'Onion', 'Nutmeg', 'Kidney' 'Beans', 'Eggs', 'Yogurt'],
+  ['Milk', 'Apple', 'Kidney' 'Beans', 'Eggs'],
+  ['Milk', 'Unicorn', 'Corn', 'Kidney' 'Beans', 'Yogurt'],
+  ['Corn', 'Onion', 'Onion', 'Kidney' 'Beans', 'Ice cream', 'Eggs'],
+]
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori
+te = TransactionEncoder()
+te_ary = te.fit(dataset).transform(dataset)
+df = pd.DataFrame(te_ary, columns=te.columns_)
+# 使用 Apriori 演算法找出頻繁項目集
+frequent_itemsets = apriori(df, min_support=0.2, use_colnames=True)
+# 印出頻繁項目集
+print(frequent_itemsets)
+
+#Association Rules
+import pandas as pd
+from mlxtend.preprocessing import TransactionEncoder
+from mlxtend.frequent_patterns import apriori, association_rules
+
+# 原始資料
+dataset = [
+    ['Milk', 'Onion', 'Nutmeg', 'Kidney Beans', 'Eggs', 'Yogurt'],
+    ['Dill', 'Onion', 'Nutmeg', 'Kidney Beans', 'Eggs', 'Yogurt'],
+    ['Milk', 'Apple', 'Kidney Beans', 'Eggs'],
+    ['Milk', 'Unicorn', 'Corn', 'Kidney Beans', 'Yogurt'],
+    ['Corn', 'Onion', 'Onion', 'Kidney Beans', 'Ice cream', 'Eggs'],
+]
+
+# 將原始資料轉換成 TransactionEncoder 的格式
+te = TransactionEncoder()
+te_ary = te.fit(dataset).transform(dataset)
+df = pd.DataFrame(te_ary, columns=te.columns_)
+frequent_itemsets = apriori(df, min_support=0.2, use_colnames=True)
+
+# 使用 Association Rules 演算法找出關聯規則，並以信心值（confidence）作為評估指標
+rules = association_rules(frequent_itemsets, metric='confidence', min_threshold=0.7)
+
+# 將關聯規則 DataFrame 按照信心值（confidence）由大至小排序
+rules = rules.sort_values(by='confidence', ascending=False)
+print(rules)
